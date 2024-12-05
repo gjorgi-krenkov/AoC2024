@@ -21,23 +21,12 @@ let sum2 = 0;
 updates.split('\r\n').forEach((update) => {
     const uS = update.split(',');
     const unf = uS.map(Number);
-    let valid = true;
-    let disallowedValues = [];
-    const len = unf.length;
-    for (let i = 1; i <= len; i++) {
-        valid = valid && !disallowedValues.includes(unf[len - i]);
-        disallowedValues = [...new Set([...disallowedValues, ...(adjList[unf[len - i]] ?? [])])];
-
-        if (disallowedValues.includes(unf[len - i])) { // part 2
-            const [removed] = unf.splice(len - i, 1);
-            for (let j = 1; j <= len; j++) { // smesti go posle prvia chale
-                if ((adjList[unf[len - j - 1]] ?? []).includes(removed)) {
-                    unf.splice(len - j, 0, removed);
-                    break;
-                }
-            }
-        }
-    }
+    unf.sort((a,b) => {
+        if(adjList[a].includes(b)) return -1;
+        if(adjList[b].includes(a)) return 1;
+        return 0;
+    })
+    const valid = uS.map(Number).every((n, index) => n === unf[index])
     const mid = unf[parseInt(unf.length / 2)];
     sum1 += mid * valid;
     sum2 += mid * !valid;
