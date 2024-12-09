@@ -6,53 +6,47 @@ const memoryBlocks = [];
 
 let occuId = 0;
 input.forEach((value, index) => {
-    if(index % 2 === 0)
-    {
+    if (index % 2 === 0) {
         memoryBlocks.push({
-            capacity: value,
-            used: value,
             partition: [[occuId, value]], // id - count
         })
         occuId++;
-    } else {
-        memoryBlocks[occuId-1].capacity += value;
+    } else if (value !== 0) {
+        memoryBlocks[occuId - 1].partition.push([-1, value]) // free space places
     }
 })
-console.log(memoryBlocks.flatMap((mb) => mb.partition));
-console.log(memoryBlocks);
-let blockToFill = 0;
 
-while(blockToFill < memoryBlocks.length){
-    const fillBlock = memoryBlocks[blockToFill];
-    let removeBlock = memoryBlocks.pop();
-    let freeSpace = fillBlock.capacity - fillBlock.used;
-    while(freeSpace > 0 && removeBlock.used) {
-        const partition = removeBlock.partition.pop();
-        const movedPartition = [partition[0], Math.min(partition[1], freeSpace)] // partitionId, value
-                
-        freeSpace -= movedPartition[1];
-        fillBlock.used += movedPartition[1];
-        removeBlock.used -= movedPartition[1];
-        partition[1] -= movedPartition[1];
-        
-       
-        fillBlock.partition.push(movedPartition);
-        if(partition[1] > 0)
-            removeBlock.partition.push(partition); // potential duplicate
+const partitions = memoryBlocks.flatMap((mb) => mb.partition);
+let partitionToMove = occuId;
+while (partitionToMove--) {
+    const targetPartitionIndex = partitions.findIndex((p) => p[0] === partitionToMove);
+    const targetPartition = partitions[targetPartitionIndex];
+
+    const freePartitionIdx = partitions.findIndex((p, index) => p[0] === -1 && p[1] >= targetPartition[1] && index < targetPartitionIndex);
+    if (freePartitionIdx === -1) {
+        continue;
     }
-    if(!freeSpace) blockToFill++;
-    if(removeBlock.used)
-        memoryBlocks.push(removeBlock);
+
+    const freePartition = partitions[freePartitionIdx];
+    const freeLeft = freePartition[1] - targetPartition[1];
+
+    partitions.splice(targetPartitionIndex, 1, [-1, targetPartition[1]]);
+    partitions.splice(freePartitionIdx, 1, targetPartition);
+    if (freeLeft > 0) {
+        partitions.splice(freePartitionIdx + 1, 0, [-1, freeLeft])
+    }
 }
+
 
 let sum = 0;
 let accounted = 0;
-const parts = memoryBlocks.flatMap((block) => block.partition);
+// const parts = memoryBlocks.flatMap((block) => block.partition);
 
-parts.forEach((part) => {
+partitions.forEach((part) => {
     const id = part[0];
     const numEl = part[1];
-    sum += ((numEl * (numEl + 1) / 2) + accounted*numEl - numEl)*id; // - numEl because sum is from 0
+    if (id !== -1)
+        sum += ((numEl * (numEl + 1) / 2) + accounted * numEl - numEl) * id; // - numEl because sum is from 0
     accounted += numEl;
 })
 
