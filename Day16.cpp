@@ -94,8 +94,50 @@ int main()
         }
     }
 
-    cout << reachMap[finish.first][finish.second];
+    for (int i = 0; i < X; i++)
+        for (int j = 0; j < Y; j++)
+            visited[i][j] = false;
 
+    cout << reachMap[finish.first][finish.second] << endl;
+
+    queue<pair<int, int>> elements;
+    elements.push(finish);
+    while (elements.size())
+    {
+        pair<int, int> coords = elements.front();
+        elements.pop();
+        if (visited[coords.first][coords.second])
+            continue;
+        visited[coords.first][coords.second] = true;
+        int value = reachMap[coords.first][coords.second];
+        if (
+            isValid(coords.first - 1, coords.second) && (value - reachMap[coords.first - 1][coords.second] == 1 || value - reachMap[coords.first - 1][coords.second] == 1001 || (value - reachMap[coords.first - 1][coords.second] == -999 && reachMap[coords.first + 1][coords.second] - value == 1001)))
+        {
+            elements.push({coords.first - 1, coords.second});
+        }
+        if (isValid(coords.first + 1, coords.second) && (value - reachMap[coords.first + 1][coords.second] == 1 || value - reachMap[coords.first + 1][coords.second] == 1001) || (value - reachMap[coords.first + 1][coords.second] == -999 && reachMap[coords.first - 1][coords.second] - value == 1001))
+        {
+            elements.push({coords.first + 1, coords.second});
+        }
+        if (isValid(coords.first, coords.second - 1) && (value - reachMap[coords.first][coords.second - 1] == 1 || value - reachMap[coords.first][coords.second - 1] == 1001) || (value - reachMap[coords.first][coords.second - 1] == -999 && reachMap[coords.first][coords.second + 1] - value == 1001))
+        {
+            elements.push({coords.first, coords.second - 1});
+        }
+        if (isValid(coords.first, coords.second + 1) && (value - reachMap[coords.first][coords.second + 1] == 1 || value - reachMap[coords.first][coords.second + 1] == 1001) || (value - reachMap[coords.first][coords.second + 1] == -999 && reachMap[coords.first][coords.second - 1] - value == 1001))
+        {
+            elements.push({coords.first, coords.second + 1});
+        }
+    }
+    int res = 0;
+    for (int i = 0; i < X; i++)
+    {
+        for (int j = 0; j < Y; j++)
+        {
+            if (visited[i][j])
+                res++;
+        }
+    }
+    cout << res;
     infile.close();
 
     return 0;
