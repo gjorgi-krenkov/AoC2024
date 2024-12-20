@@ -107,7 +107,7 @@ int main()
         {
             if (orgMp[i][j] != '.' && orgMp[i][j] != 'S' && orgMp[i][j] != 'E')
                 continue;
-            int foundCheat = 0;
+            int foundCheats = 0;
             bool visited[X][Y];
             for (int q = 0; q < X; q++)
                 for (int z = 0; z < Y; z++)
@@ -134,12 +134,12 @@ int main()
                         {
 
                             visited[i + l * dir.first][j + r * dir.second] = true; // mark the field as visited from this pos
-                            foundCheat++;
+                            foundCheats++;
                         }
                     }
                 }
             }
-            score += foundCheat;
+            score += foundCheats;
         }
     }
     cout << score;
