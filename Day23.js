@@ -10,24 +10,35 @@ const relations = {
 
 entites.forEach((e) => {
     const [u, v] = e.split('-');
-    if (!relations[u]) relations[u] = [];
-    if (!relations[v]) relations[v] = [];
+    if (!relations[u]) relations[u] = [u];
+    if (!relations[v]) relations[v] = [v];
     relations[u].push(v);
     relations[v].push(u);
+    relations[u].sort();
+    relations[v].sort();
 });
 
-let lazyWay = [];
-Object.entries(relations).forEach(([key, connections]) => {
-    if (!key.startsWith('t')) return;
-    const combs = [];
-    connections.forEach((c) => {
-        combs.push(
-            ...relations[c]
-                .filter((r) => r !== key && relations[r].includes(key))
-                .map((cc) => [key, c, cc].sort().join(','))
-        );
+const findCommon = (a, b) => {
+    let res = []
+    a.forEach((st) => { if (b.includes(st)) res.push(st) });
+    return res;
+}
+
+let best = '';
+Object.keys(relations).forEach((k) => {
+    const relA = relations[k];
+    Object.keys(relations).forEach((l) => {
+        if (k === l) return;
+        const relB = relations[l];
+        const common = findCommon(relA, relB);
+        let truCommon = [...common];
+        common.forEach((val) => {
+            if (val === k || val === l) return;
+            truCommon = findCommon(truCommon, relations[val]);
+        })
+        const loc = truCommon.sort().join(',');
+        if (loc.length > best.length) best = loc;
     });
-    lazyWay = [... new Set([...lazyWay, ...combs])];
-})
-console.log(lazyWay)
-console.log(lazyWay.length)
+});
+
+console.log(best);
